@@ -1,5 +1,6 @@
 import pyotp
 import datetime
+import hashlib
 
 
 class TOTP:
@@ -7,7 +8,12 @@ class TOTP:
     @staticmethod
     def generate_totp(key, time, return_digits, crypto='HmacSHA1'):
         time_int = int(time, 16)
-        totp = pyotp.TOTP(key, digits=int(return_digits), digest=getattr(pyotp.utils, crypto.lower()))
+        digest = hashlib.sha1
+        if crypto == 'HmacSHA256':
+            digest = hashlib.sha256
+        elif crypto == 'HmacSHA512':
+            digest = hashlib.sha512
+        totp = pyotp.TOTP(key, digits=int(return_digits), digest=digest)
         otp = totp.at(time_int)
         return otp
 
