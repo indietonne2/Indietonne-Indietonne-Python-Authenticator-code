@@ -1,9 +1,15 @@
 import pyotp
 import datetime
 import hashlib
+import base64
 
 
 class TOTP:
+
+    @staticmethod
+    def hex_to_base32(hex_key):
+        """Convert a hex key to base32 format"""
+        return base64.b32encode(bytes.fromhex(hex_key)).decode('utf-8')
 
     @staticmethod
     def generate_totp(key, time, return_digits, crypto='HmacSHA1'):
@@ -13,7 +19,8 @@ class TOTP:
             digest = hashlib.sha256
         elif crypto == 'HmacSHA512':
             digest = hashlib.sha512
-        totp = pyotp.TOTP(key, digits=int(return_digits), digest=digest)
+        base32_key = TOTP.hex_to_base32(key)
+        totp = pyotp.TOTP(base32_key, digits=int(return_digits), digest=digest)
         otp = totp.at(time_int)
         return otp
 
